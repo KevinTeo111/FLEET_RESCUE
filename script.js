@@ -242,15 +242,17 @@
       if (!firstInvalid) firstInvalid = input;
     }
 
+    var company = form.elements.company;
     var name = form.elements.name;
     var phone = form.elements.phone;
     var truck = form.elements.truck_type;
     var repair = form.elements.repair_type;
     var issue = form.elements.issue;
 
-    [name, phone, locationInput, truck, repair, issue].forEach(clearFieldError);
+    [company, name, phone, locationInput, truck, repair, issue].forEach(clearFieldError);
 
-    if (!name.value.trim()) fail(name, "Please enter your full name.");
+    if (!company.value.trim()) fail(company, "Please enter your company name.");
+    if (!name.value.trim()) fail(name, "Please enter your name.");
     if (!phone.value.trim()) fail(phone, "Please enter a phone number we can call back.");
     else if (!isValidPhone(phone.value)) fail(phone, "Please enter a valid phone number.");
 
@@ -320,9 +322,9 @@
     // Grouped, readable message for the dispatcher's inbox
     var summary =
       "=== CONTACT ===\n" +
+      "Company:  " + data.get("company") + "\n" +
       "Name:     " + data.get("name") + "\n" +
-      "Phone:    " + data.get("phone") + "\n" +
-      "Company:  " + (data.get("company") || "(not provided)") + "\n\n" +
+      "Phone:    " + data.get("phone") + "\n\n" +
       "=== LOCATION ===\n" +
       "Reported: " + (data.get("location") || "(not provided)") + "\n" +
       "Map link: " + (data.get("map_link") || "(GPS not shared)") + "\n\n" +
@@ -333,7 +335,7 @@
       "Details:  " + data.get("issue") + "\n" +
       "Photos:   " + selectedPhotos.length + " attached\n";
 
-    data.append("_subject", "Roadside request: " + data.get("repair_type") + " — " + data.get("name"));
+    data.append("_subject", "Roadside request: " + data.get("repair_type") + " — " + data.get("company"));
     data.append("summary", summary);
     return data;
   }
