@@ -196,6 +196,23 @@ ol, ul { margin: 0; padding: 0; list-style: none; }
   gap: 16px;
   margin-top: 24px;
 }
+.pay-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--red);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background .15s ease;
+}
+.pay-badge:hover { background: var(--red-dark); }
+.pay-badge .icon { width: 16px; height: 16px; }
 
 /* Photo band: on desktop a transparent spacer that sets the hero height
    (the photo is the section background); on mobile it shows the framed strip */
@@ -486,6 +503,9 @@ ol, ul { margin: 0; padding: 0; list-style: none; }
   background: var(--red);
 }
 .coverage-text { font-size: 14px; color: rgba(255, 255, 255, .85); }
+.coverage-card-wide { grid-column: 1 / -1; }
+.coverage-card-wide .coverage-text { margin-bottom: 10px; }
+.coverage-list-inline { display: flex; flex-wrap: wrap; gap: 6px 24px; }
 .coverage-text a { color: var(--white); font-weight: 700; text-decoration: underline; }
 
 /* ---------- How it works ---------- */
@@ -646,6 +666,8 @@ ol, ul { margin: 0; padding: 0; list-style: none; }
   .coverage { padding-bottom: 32px; }
   .coverage-grid { grid-template-columns: 1fr; }
   .coverage-list { grid-template-columns: 1fr; }
+  .coverage-list-inline { display: grid; }
+  .pay-badge { font-size: 11px; }
   .footer-meta { text-align: left; }
 
   .how { padding: 32px 0; }
