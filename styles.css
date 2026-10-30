@@ -121,7 +121,6 @@ ol, ul { margin: 0; padding: 0; list-style: none; }
 .brand-logo {
   height: 58px;
   width: auto;
-  border-radius: 6px;
   display: block;
 }
 .brand-sm .brand-logo { height: 44px; }
