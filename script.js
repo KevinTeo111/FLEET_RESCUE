@@ -5,13 +5,17 @@
 (function () {
   "use strict";
 
-  /* ---------- CONFIG (fill in before going live) ----------
-     FORM_ENDPOINT: URL of the form delivery service (e.g. Formspree,
-     Web3Forms) or a server-side mail script on the client's hosting.
-     While it is empty the page runs in preview mode and simulates a
-     successful send so the full flow can be reviewed.
+  /* ---------- CONFIG ----------
+     Requests are delivered by Web3Forms (https://web3forms.com) to the
+     email address the access key was created with. Leave FORM_ENDPOINT
+     empty to run in preview mode (simulated send, payload logged to the
+     console).
+     ATTACH_PHOTOS: file attachments are a Web3Forms Pro feature. While
+     false the photo field is hidden; set to true after upgrading.
   --------------------------------------------------------- */
-  var FORM_ENDPOINT = "";
+  var FORM_ENDPOINT = "https://api.web3forms.com/submit";
+  var WEB3FORMS_ACCESS_KEY = "edb620d7-3ac3-4d04-b6b6-e25d1554e1c5";
+  var ATTACH_PHOTOS = false;
   var DISPATCH_PHONE_DISPLAY = "984-315-3301";
   var DISPATCH_PHONE_TEL = "tel:9843153301";
   var GPS_TIMEOUT_MS = 12000;
@@ -42,6 +46,7 @@
   var photoList = document.querySelector(".file-list");
   var photoDropText = document.querySelector(".file-drop-text");
   var selectedPhotos = [];
+  if (!ATTACH_PHOTOS) photoInput.closest(".field").hidden = true;
 
   var isSubmitting = false;
   var isLocating = false;
@@ -315,9 +320,12 @@
   function buildPayload() {
     var data = new FormData(form);
 
-    // Replace the raw file input with the curated photo list
+    // Replace the raw file input with the curated photo list.
+    // Web3Forms reads attachments from the reserved "attachment" field.
     data.delete("photos");
-    selectedPhotos.forEach(function (file) { data.append("photos", file, file.name); });
+    if (ATTACH_PHOTOS) {
+      selectedPhotos.forEach(function (file) { data.append("attachment", file, file.name); });
+    }
 
     // Grouped, readable message for the dispatcher's inbox
     var summary =
@@ -333,17 +341,18 @@
       "=== ISSUE ===\n" +
       "Repair:   " + data.get("repair_type") + "\n" +
       "Details:  " + data.get("issue") + "\n" +
-      "Photos:   " + selectedPhotos.length + " attached\n";
+      (ATTACH_PHOTOS ? "Photos:   " + selectedPhotos.length + " attached\n" : "");
 
-    data.append("_subject", "Roadside request: " + data.get("repair_type") + " — " + data.get("company"));
-    data.append("summary", summary);
+    data.append("access_key", WEB3FORMS_ACCESS_KEY);
+    data.append("subject", "Roadside request: " + data.get("repair_type") + " — " + data.get("company"));
+    data.append("message", summary);
     return data;
   }
 
   function sendRequest(payload) {
     if (!FORM_ENDPOINT) {
       // Preview mode: simulate a successful send so the flow can be reviewed
-      console.info("[Fleet Rescue] Preview mode — no FORM_ENDPOINT configured. Payload:\n" + payload.get("summary"));
+      console.info("[Fleet Rescue] Preview mode — no FORM_ENDPOINT configured. Payload:\n" + payload.get("message"));
       return new Promise(function (resolve) { setTimeout(resolve, 900); });
     }
     return fetch(FORM_ENDPOINT, {
@@ -351,7 +360,11 @@
       body: payload,
       headers: { Accept: "application/json" }
     }).then(function (res) {
-      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json().catch(function () { return {}; }).then(function (json) {
+        if (!res.ok || json.success === false) {
+          throw new Error("HTTP " + res.status + " " + (json.message || (json.body && json.body.message) || ""));
+        }
+      });
     });
   }
 
@@ -361,7 +374,7 @@
     clearFormError();
 
     // Honeypot filled => bot; pretend success silently
-    if (form.elements._gotcha && form.elements._gotcha.value) {
+    if (form.elements.botcheck && form.elements.botcheck.value) {
       showSuccess();
       return;
     }

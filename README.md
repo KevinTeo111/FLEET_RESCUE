@@ -18,16 +18,19 @@ Everything in `source-assets/` is original artwork and the approved design mocku
 
 ## Before go-live
 
-1. **Request destination.** In `script.js`, set `FORM_ENDPOINT` to the form service URL (Formspree, Web3Forms, or a mail script on the host). While it is empty the page runs in preview mode: submissions succeed locally and the payload is logged to the browser console. Photo attachments require a form service plan that accepts files.
-2. **HTTPS.** The browser only allows GPS on a secure origin. Confirm SSL is active on the domain.
-3. **Privacy link.** The footer "Privacy" link points to `#`. Replace it or remove it.
+1. **Request destination.** Requests go through Web3Forms (`FORM_ENDPOINT` and `WEB3FORMS_ACCESS_KEY` in `script.js`) to the email the access key was created with. To change the destination email, create a new key at web3forms.com and replace the value. Emptying `FORM_ENDPOINT` puts the page back in preview mode (simulated send, payload logged to the browser console).
+2. **Photos.** File attachments are a Web3Forms Pro feature. `ATTACH_PHOTOS` is `false`, which hides the photo field. After upgrading, set it to `true` and send one test with a photo.
+3. **HTTPS.** The browser only allows GPS on a secure origin. Confirm SSL is active on the domain.
+4. **Privacy link.** The footer "Privacy" link points to `#`. Replace it or remove it.
 
 ## Configuration
 
 All editable values sit at the top of `script.js`:
 
 ```js
-var FORM_ENDPOINT = "";            // form delivery URL
+var FORM_ENDPOINT = "https://api.web3forms.com/submit";
+var WEB3FORMS_ACCESS_KEY = "...";  // public key from web3forms.com
+var ATTACH_PHOTOS = false;         // true only on a Web3Forms Pro plan
 var DISPATCH_PHONE_DISPLAY = "984-315-3301";
 var DISPATCH_PHONE_TEL = "tel:9843153301";
 var GPS_TIMEOUT_MS = 12000;
